@@ -1,49 +1,56 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TimeController: MonoBehaviour
+public class TimeController : MonoBehaviour
 {
-    [SerializeField]
-	private GameObject _gameObject;
+    [SerializeField] private GameObject _gameObject;
+    [SerializeField] private float _timer;
+    private float _startTimer;
     private ArrayList _playerPositions;
     private ArrayList _playerRotations;
     private bool isReversing = false;
-    private int _index;
 
-	void Start()
-	{
+    void Start()
+    {
+        _startTimer = _timer;
         _playerPositions = new ArrayList();
         _playerRotations = new ArrayList();
-	}
+    }
 
     void Update()
     {
-        if(Input.GetKey(KeyCode.Space) || Input.touchCount > 0 && Input.GetTouch(1).phase == TouchPhase.Began)
+        
+        if (Input.GetKey(KeyCode.Space)|| Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Stationary)
         {
-            if (_playerPositions.Count == 0)
+            _timer -= Time.deltaTime;
+            if (_timer < 0)
             {
-                isReversing = false;
-                if (_gameObject.tag == "Player")
+                if (_playerPositions.Count == 0)
                 {
-                    _gameObject.SetActive(false);
+                    isReversing = false;
+                    _timer = _startTimer;
+                    if (_gameObject.tag == "Player")
+                    {
+                        _gameObject.SetActive(false);
+                    }
+
                 }
-                
+
+                isReversing = true;
             }
-            isReversing = true;
         }
         else
         {
             isReversing = false;
         }
     }
-	
-	void FixedUpdate()
+
+    void FixedUpdate()
     {
         if (!isReversing)
         {
             _playerPositions.Add(_gameObject.transform.position);
             _playerRotations.Add(_gameObject.transform.localEulerAngles);
-            
         }
 
         else
@@ -61,8 +68,7 @@ public class TimeController: MonoBehaviour
                 _gameObject.transform.localEulerAngles = (Vector3) _playerRotations[_playerRotations.Count - 1];
                 _playerRotations.RemoveAt(_playerRotations.Count - 1);
             }
-           
+
         }
-        
     }
 }
